@@ -1,8 +1,7 @@
 *.csv
 *.parquet
 __init__.py
-*/.DS_Store
-.idea/
+*.DS_Store
+.idea
 __pycache__
-
-baseball_data_project/inputs/raw_files
+baseball_data_project/inputs/raw_files/
