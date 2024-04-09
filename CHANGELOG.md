@@ -9,6 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- write to s3 functionality
+
+
+## [0.1.2] - 2024-04-09
+
+### Added
+
 - ssl_block boolean in each extraction script to read my local memory
 
 ### Fixed
