@@ -15,10 +15,10 @@ def delete_file(file_path):
 
 
 def extract_team_acronym_and_division(year):
-    my_file = Path(f'../inputs/{year}_team_index_data.csv')
+    my_file = Path(f'../inputs/team_data/{year}/{year}_team_index_data.csv')
     if my_file.is_file():
         logger.info(f'{year} Team Data Exists!')
-        team_data = pd.read_csv(f'../inputs/{year}_team_index_data.csv')
+        team_data = pd.read_csv(f'../inputs/team_data/{year}/{year}_team_index_data.csv')
         acronyms = team_data[['Team Acronym', 'Division']].values.tolist()
     else:
         logger.info(f'{year} Team Data does not exist - run extract_team_data.py')

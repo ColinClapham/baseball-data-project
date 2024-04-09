@@ -22,6 +22,15 @@ The Following field is added for clarity:
 '''
 
 
+def clean_roster_file(raw_file_name):
+    df = pd.read_csv(
+        raw_file_name,
+        header=None
+    )
+    df.columns = ['uuid', 'Last Name', 'First Name', 'Bat', 'Throw', 'Team Acronym', 'Position']
+
+    return df
+
 def download_and_unzip_csv(url, raw_file_name):
 
     response = requests.get(url)
@@ -48,13 +57,17 @@ def download_and_unzip_csv(url, raw_file_name):
         return df
 
 
-def extract_roster_data(year, team_acronym):
-    # URL of raw data
-    url = f'https://www.retrosheet.org/events/{year}eve.zip'
-    # year of team data
-    raw_file_name = f'{team_acronym}{year}.ROS'
-    team_data = download_and_unzip_csv(url, raw_file_name)
-    logger.info(f'{team_acronym}{year} Complete!')
+def extract_roster_data(year, team_acronym, ssl_block=True):
+    if ssl_block:
+        roster_data_raw_file_path = f'../inputs/raw_files/{year}eve/{team_acronym}{year}.ROS'
+        team_data = clean_roster_file(roster_data_raw_file_path)
+    else:
+        # URL of raw data
+        url = f'https://www.retrosheet.org/events/{year}eve.zip'
+        # year of team data
+        raw_file_name = f'{team_acronym}{year}.ROS'
+        team_data = download_and_unzip_csv(url, raw_file_name)
+        logger.info(f'{team_acronym}{year} Complete!')
 
     return team_data
 
@@ -73,7 +86,7 @@ if is_read_team_data:
 
             logger.info(f'Reading {j[0]}{i} Roster Data')
             # Define the path for the csv file
-            csv_file = f'../inputs/roster_data/{j[0]}{i}_roster_index_data.csv'
+            csv_file = f'../inputs/roster_data/{i}/{j[0]}{i}_roster_index_data.csv'
 
             table = (extract_roster_data(i, j[0]))
             # Write the Table to a csv

@@ -29,6 +29,35 @@ The are broken up into subgroups:
         - only 8 records are tagged, will ignore
 '''
 
+def clean_game_log_file(raw_file_name, n=10):
+    df = pd.read_csv(
+        raw_file_name,
+        header=None,
+        names=range(n)
+    )
+    df.rename(
+        columns={
+            0: 'data_type',
+            1: 'metadata_1',
+            2: 'metadata_2',
+            3: 'metadata_3',
+            4: 'metadata_4',
+            5: 'metadata_5',
+            6: 'metadata_6'
+        },
+        inplace=True
+    )
+
+    game_number = 0
+    df['game_number'] = 0
+
+    for k in range(len(df)):
+        if df.loc[k, 'data_type'] == 'id':
+            game_number += 1
+        df.loc[k, 'game_number'] = game_number
+
+    return df
+
 
 def download_and_unzip_csv(url, raw_file_name, n=10):
 
@@ -78,13 +107,17 @@ def download_and_unzip_csv(url, raw_file_name, n=10):
         return df
 
 
-def extract_game_log_data(year, team_acronym, division):
-    # URL of raw data
-    url = f'https://www.retrosheet.org/events/{year}eve.zip'
-    # year of team data
-    raw_file_name = f'{year}{team_acronym}.EV{division}'
-    team_data = download_and_unzip_csv(url, raw_file_name)
-    logger.info(f'{team_acronym}{year} Complete!')
+def extract_game_log_data(year, team_acronym, division, ssl_block=True):
+    if ssl_block:
+        game_log_data_raw_file_path = f'../inputs/raw_files/{year}eve/{year}{team_acronym}.EV{division}'
+        team_data = clean_game_log_file(game_log_data_raw_file_path)
+    else:
+        # URL of raw data
+        url = f'https://www.retrosheet.org/events/{year}eve.zip'
+        # year of team data
+        raw_file_name = f'{year}{team_acronym}.EV{division}'
+        team_data = download_and_unzip_csv(url, raw_file_name)
+        logger.info(f'{team_acronym}{year} Complete!')
 
     return team_data
 
@@ -103,7 +136,7 @@ if is_read_team_data:
 
             logger.info(f'Reading {j[0]}{i} Roster Data')
             # Define the path for the csv file
-            csv_file = f'../inputs/game_log_data/{j[0]}{i}_game_log_data.csv'
+            csv_file = f'../inputs/game_log_data/{i}/{j[0]}{i}_game_log_data.csv'
 
             table = (extract_game_log_data(i, j[0], j[1]))
             # Write the Table to a csv

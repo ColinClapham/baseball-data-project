@@ -12,7 +12,7 @@ for i in game_log_years:
     # team_acronyms = [['ANA', 'A']]
     for j in team_acronyms:
         # Specify the path to your Parquet file
-        parquet_file_path = f'../deliverables/pitch_info/{j[0]}{i}_pitch_info_data.parquet'
+        parquet_file_path = f'../deliverables/pitch_info/{i}/{j[0]}{i}_pitch_info_data.parquet'
 
         # Read the Parquet file into a DataFrame
         pitch_info_df = pd.read_parquet(parquet_file_path)

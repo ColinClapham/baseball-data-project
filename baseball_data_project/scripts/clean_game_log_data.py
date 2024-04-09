@@ -374,10 +374,10 @@ def create_pitch_info(df):
 
 
 def extract_game_log_data(year, team_acronym):
-    my_file = Path(f'../inputs/game_log_data/{team_acronym}{year}_game_log_data.csv')
+    my_file = Path(f'../inputs/game_log_data/{year}/{team_acronym}{year}_game_log_data.csv')
     if my_file.is_file():
         logger.info(f'{year} Team Data Exists!')
-        game_log_raw_data = pd.read_csv(f'../inputs/game_log_data/{team_acronym}{year}_game_log_data.csv')
+        game_log_raw_data = pd.read_csv(f'../inputs/game_log_data/{year}/{team_acronym}{year}_game_log_data.csv')
     else:
         logger.info(f'{team_acronym}{year} Data does not exist - run extract_game_log_data.py')
 
@@ -402,7 +402,7 @@ if is_read_team_data:
             logger.info(f'Cleaning {j[0]}{i} Game Log Data')
 
             if is_create_game_info:
-                csv_file = f'../deliverables/game_info/{j[0]}{i}_game_info_data.csv'
+                csv_file = f'../deliverables/game_info/{i}/{j[0]}{i}_game_info_data.csv'
 
                 table = create_game_info(extract_game_log_data(i, j[0]))
                 # Write the Table to a csv
@@ -412,7 +412,7 @@ if is_read_team_data:
                 logger.info('Do Not Create Game Info')
 
             if is_create_lineup_info:
-                csv_file = f'../deliverables/lineup_info/{j[0]}{i}_lineup_info_data.csv'
+                csv_file = f'../deliverables/lineup_info/{i}/{j[0]}{i}_lineup_info_data.csv'
 
                 table = create_lineup_info(extract_game_log_data(i, j[0]))
 
@@ -424,7 +424,7 @@ if is_read_team_data:
 
             if is_create_pitch_info:
                 # Define the path for the Parquet file
-                parquet_file = f'../deliverables/pitch_info/{j[0]}{i}_pitch_info_data.parquet'
+                parquet_file = f'../deliverables/pitch_info/{i}/{j[0]}{i}_pitch_info_data.parquet'
                 # Convert the pandas DataFrame to a pyarrow Table
                 table = pa.Table.from_pandas(create_pitch_info(extract_game_log_data(i, j[0])))
 
