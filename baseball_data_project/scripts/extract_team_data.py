@@ -22,6 +22,19 @@ The Following field is added for clarity:
 '''
 
 
+def clean_team_file(raw_file_name):
+    df = pd.read_csv(
+        raw_file_name,
+        header=None
+    )
+    df.columns = ["Team Acronym", "Division", "Team City", "Team Name"]
+
+    # Step 5: Process the Data
+    df['Full Team Name'] = df['Team City'] + ' ' + df['Team Name']
+
+    return df
+
+
 def download_and_unzip_csv(url, raw_file_name):
 
     response = requests.get(url)
@@ -51,13 +64,18 @@ def download_and_unzip_csv(url, raw_file_name):
         return df
 
 
-def extract_team_data(year):
-    # URL of raw data
-    url = f'https://www.retrosheet.org/events/{year}eve.zip'
-    # year of team data
-    raw_file_name = f'TEAM{year}'
-    team_data = download_and_unzip_csv(url, raw_file_name)
-    logger.info(f'Year {year} Complete!')
+def extract_team_data(year, ssl_block=True):
+    # Starting March 26, 2024 - retrosheet updated their SSL Certification making it impossible to connect to their site
+    if ssl_block:
+        team_data_raw_file_path = f'../inputs/raw_files/{year}eve/TEAM{year}'
+        team_data = clean_team_file(team_data_raw_file_path)
+    else:
+        # URL of raw data
+        url = f'https://www.retrosheet.org/events/{year}eve.zip'
+        # year of team data
+        raw_file_name = f'TEAM{year}'
+        team_data = download_and_unzip_csv(url, raw_file_name)
+        logger.info(f'Year {year} Complete!')
 
     return team_data
 
@@ -73,7 +91,7 @@ if is_read_team_data:
     for i in game_log_years:
         logger.info(f'Reading {i} Team Data')
         # Define the path for the csv file
-        csv_file = f'../inputs/{i}_team_index_data.csv'
+        csv_file = f'../inputs/team_data/{i}/{i}_team_index_data.csv'
 
         table = (extract_team_data(i))
         # Write the Table to a csv
