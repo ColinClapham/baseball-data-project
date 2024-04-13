@@ -2,7 +2,7 @@ import requests
 import zipfile
 import io
 import pandas as pd
-from utils import delete_file, extract_team_acronym_and_division
+from baseball_data_project.scripts.utils import delete_file, extract_team_acronym_and_division, ensure_directory_exists
 from loguru import logger
 
 '''
@@ -28,6 +28,7 @@ The are broken up into subgroups:
     - radj: 'runner adjustment', field begins in 2020, indicates a runner starting on 2nd in extra innings; 
         - only 8 records are tagged, will ignore
 '''
+
 
 def clean_game_log_file(raw_file_name, n=10):
     df = pd.read_csv(
@@ -109,7 +110,7 @@ def download_and_unzip_csv(url, raw_file_name, n=10):
 
 def extract_game_log_data(year, team_acronym, division, ssl_block=True):
     if ssl_block:
-        game_log_data_raw_file_path = f'../inputs/raw_files/{year}eve/{year}{team_acronym}.EV{division}'
+        game_log_data_raw_file_path = f'/Users/colinclapham/github/baseball-data-project/baseball_data_project/inputs/raw_files/{year}eve/{year}{team_acronym}.EV{division}'
         team_data = clean_game_log_file(game_log_data_raw_file_path)
     else:
         # URL of raw data
@@ -122,26 +123,33 @@ def extract_game_log_data(year, team_acronym, division, ssl_block=True):
     return team_data
 
 
-game_log_years = [
-    2023,
-    # 2024 ### not yet available
-]
+def run_extract_game_log_data(game_log_years=[2023], is_read_team_data=True):
+    if is_read_team_data:
+        for i in game_log_years:
+            team_acronyms = extract_team_acronym_and_division(i)
+            for j in team_acronyms:
+                logger.info(f'Reading {j[0]}{i} Roster Data')
+                # Define the path for the csv file
+                csv_file = f'/Users/colinclapham/github/baseball-data-project/baseball_data_project/inputs/game_log_data/{i}/{j[0]}{i}_game_log_data.csv'
 
-is_read_team_data = True
+                ensure_directory_exists(csv_file)
 
-if is_read_team_data:
-    for i in game_log_years:
-        team_acronyms = extract_team_acronym_and_division(i)
-        for j in team_acronyms:
+                table = (extract_game_log_data(i, j[0], j[1]))
+                # Write the Table to a csv
+                table.to_csv(csv_file)
+                logger.info(f"Data has been written to '{csv_file}'")
+    else:
+        logger.info('Skip Game Log Data')
+        pass
 
-            logger.info(f'Reading {j[0]}{i} Roster Data')
-            # Define the path for the csv file
-            csv_file = f'../inputs/game_log_data/{i}/{j[0]}{i}_game_log_data.csv'
 
-            table = (extract_game_log_data(i, j[0], j[1]))
-            # Write the Table to a csv
-            table.to_csv(csv_file)
-            logger.info(f"Data has been written to '{csv_file}'")
-else:
-    logger.info('Skip Game Log Data')
-    pass
+if __name__ == "__main__":
+
+    # game_log_years = [
+    #     2022,
+    #     # 2024 ### not yet available
+    # ]
+    #
+    # is_read_team_data = True
+
+    run_extract_game_log_data()

@@ -1,5 +1,5 @@
 import pandas as pd
-from utils import extract_team_acronym_and_division
+from baseball_data_project.scripts.utils import extract_team_acronym_and_division, ensure_directory_exists
 from loguru import logger
 from pathlib import Path
 import pyarrow as pa
@@ -374,65 +374,77 @@ def create_pitch_info(df):
 
 
 def extract_game_log_data(year, team_acronym):
-    my_file = Path(f'../inputs/game_log_data/{year}/{team_acronym}{year}_game_log_data.csv')
+    my_file = Path(f'/Users/colinclapham/github/baseball-data-project/baseball_data_project/inputs/game_log_data/{year}/{team_acronym}{year}_game_log_data.csv')
     if my_file.is_file():
         logger.info(f'{year} Team Data Exists!')
-        game_log_raw_data = pd.read_csv(f'../inputs/game_log_data/{year}/{team_acronym}{year}_game_log_data.csv')
+        game_log_raw_data = pd.read_csv(f'/Users/colinclapham/github/baseball-data-project/baseball_data_project/inputs/game_log_data/{year}/{team_acronym}{year}_game_log_data.csv')
     else:
         logger.info(f'{team_acronym}{year} Data does not exist - run extract_game_log_data.py')
 
     return game_log_raw_data
 
 
-game_log_years = [
-    2023,
-    # 2024 ### not yet available
-]
+def run_clean_game_log_data(game_log_years=[2023], is_read_team_data=True, is_create_game_info=True, is_create_lineup_info=True, is_create_pitch_info=True):
+    if is_read_team_data:
+        for i in game_log_years:
+            team_acronyms = extract_team_acronym_and_division(i)
+            for j in team_acronyms:
 
-is_read_team_data = True
-is_create_game_info = False
-is_create_lineup_info = False
-is_create_pitch_info = True
+                logger.info(f'Cleaning {j[0]}{i} Game Log Data')
 
-if is_read_team_data:
-    for i in game_log_years:
-        team_acronyms = extract_team_acronym_and_division(i)
-        for j in team_acronyms:
+                if is_create_game_info:
+                    csv_file = f'/Users/colinclapham/github/baseball-data-project/baseball_data_project/deliverables/game_info/{i}/{j[0]}{i}_game_info_data.csv'
 
-            logger.info(f'Cleaning {j[0]}{i} Game Log Data')
+                    ensure_directory_exists(csv_file)
 
-            if is_create_game_info:
-                csv_file = f'../deliverables/game_info/{i}/{j[0]}{i}_game_info_data.csv'
+                    table = create_game_info(extract_game_log_data(i, j[0]))
+                    # Write the Table to a csv
+                    table.to_csv(csv_file)
+                    logger.info(f"Game Info has been written to '{csv_file}'")
+                else:
+                    logger.info('Do Not Create Game Info')
 
-                table = create_game_info(extract_game_log_data(i, j[0]))
-                # Write the Table to a csv
-                table.to_csv(csv_file)
-                logger.info(f"Game Info has been written to '{csv_file}'")
-            else:
-                logger.info('Do Not Create Game Info')
+                if is_create_lineup_info:
+                    csv_file = f'/Users/colinclapham/github/baseball-data-project/baseball_data_project/deliverables/lineup_info/{i}/{j[0]}{i}_lineup_info_data.csv'
 
-            if is_create_lineup_info:
-                csv_file = f'../deliverables/lineup_info/{i}/{j[0]}{i}_lineup_info_data.csv'
+                    ensure_directory_exists(csv_file)
 
-                table = create_lineup_info(extract_game_log_data(i, j[0]))
+                    table = create_lineup_info(extract_game_log_data(i, j[0]))
 
-                # Write the Table to a csv
-                table.to_csv(csv_file)
-                logger.info(f"Lineup Info has been written to '{csv_file}'")
-            else:
-                logger.info('Do Not Create Lineup Info')
+                    # Write the Table to a csv
+                    table.to_csv(csv_file)
+                    logger.info(f"Lineup Info has been written to '{csv_file}'")
+                else:
+                    logger.info('Do Not Create Lineup Info')
 
-            if is_create_pitch_info:
-                # Define the path for the Parquet file
-                parquet_file = f'../deliverables/pitch_info/{i}/{j[0]}{i}_pitch_info_data.parquet'
-                # Convert the pandas DataFrame to a pyarrow Table
-                table = pa.Table.from_pandas(create_pitch_info(extract_game_log_data(i, j[0])))
+                if is_create_pitch_info:
+                    # Define the path for the Parquet file
+                    parquet_file = f'/Users/colinclapham/github/baseball-data-project/baseball_data_project/deliverables/pitch_info/{i}/{j[0]}{i}_pitch_info_data.parquet'
 
-                # Write the Table to a Parquet file
-                pq.write_table(table, parquet_file)
-                logger.info(f"Data has been written to '{parquet_file}' in Parquet format.")
-            else:
-                logger.info('Do Not Create Pitch Info')
-else:
-    logger.info('Skip Game Log Data')
-    pass
+                    ensure_directory_exists(parquet_file)
+                    # Convert the pandas DataFrame to a pyarrow Table
+                    table = pa.Table.from_pandas(create_pitch_info(extract_game_log_data(i, j[0])))
+
+                    # Write the Table to a Parquet file
+                    pq.write_table(table, parquet_file)
+                    logger.info(f"Data has been written to '{parquet_file}' in Parquet format.")
+                else:
+                    logger.info('Do Not Create Pitch Info')
+    else:
+        logger.info('Skip Game Log Data')
+        pass
+
+
+if __name__ == "__main__":
+
+    # game_log_years = [
+    #     2022,
+    #     # 2024 ### not yet available
+    # ]
+    #
+    # is_read_team_data = True
+    # is_create_game_info = True
+    # is_create_lineup_info = True
+    # is_create_pitch_info = True
+
+    run_clean_game_log_data()
