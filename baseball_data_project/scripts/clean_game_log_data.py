@@ -385,13 +385,13 @@ def extract_game_log_data(year, team_acronym):
 
 
 game_log_years = [
-    2023,
+    2022,
     # 2024 ### not yet available
 ]
 
 is_read_team_data = True
-is_create_game_info = False
-is_create_lineup_info = False
+is_create_game_info = True
+is_create_lineup_info = True
 is_create_pitch_info = True
 
 if is_read_team_data:

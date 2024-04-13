@@ -2,7 +2,7 @@ import requests
 import zipfile
 import io
 import pandas as pd
-from utils import delete_file, extract_team_acronym_and_division
+from baseball_data_project.scripts.utils import delete_file, extract_team_acronym_and_division
 from loguru import logger
 
 '''
@@ -59,7 +59,7 @@ def download_and_unzip_csv(url, raw_file_name):
 
 def extract_roster_data(year, team_acronym, ssl_block=True):
     if ssl_block:
-        roster_data_raw_file_path = f'../inputs/raw_files/{year}eve/{team_acronym}{year}.ROS'
+        roster_data_raw_file_path = f'../../inputs/raw_files/{year}eve/{team_acronym}{year}.ROS'
         team_data = clean_roster_file(roster_data_raw_file_path)
     else:
         # URL of raw data
@@ -73,7 +73,7 @@ def extract_roster_data(year, team_acronym, ssl_block=True):
 
 
 roster_years = [
-    2023,
+    2022,
     # 2024 ### not yet available
 ]
 
@@ -86,7 +86,7 @@ if is_read_team_data:
 
             logger.info(f'Reading {j[0]}{i} Roster Data')
             # Define the path for the csv file
-            csv_file = f'../inputs/roster_data/{i}/{j[0]}{i}_roster_index_data.csv'
+            csv_file = f'../../inputs/roster_data/{i}/{j[0]}{i}_roster_index_data.csv'
 
             table = (extract_roster_data(i, j[0]))
             # Write the Table to a csv

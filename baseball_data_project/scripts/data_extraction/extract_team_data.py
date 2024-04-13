@@ -2,7 +2,7 @@ import requests
 import zipfile
 import io
 import pandas as pd
-from utils import delete_file
+from baseball_data_project.scripts.utils import delete_file
 from loguru import logger
 import ssl
 
@@ -67,7 +67,7 @@ def download_and_unzip_csv(url, raw_file_name):
 def extract_team_data(year, ssl_block=True):
     # Starting March 26, 2024 - retrosheet updated their SSL Certification making it impossible to connect to their site
     if ssl_block:
-        team_data_raw_file_path = f'../inputs/raw_files/{year}eve/TEAM{year}'
+        team_data_raw_file_path = f'../../inputs/raw_files/{year}eve/TEAM{year}'
         team_data = clean_team_file(team_data_raw_file_path)
     else:
         # URL of raw data
@@ -81,7 +81,7 @@ def extract_team_data(year, ssl_block=True):
 
 
 game_log_years = [
-    2023,
+    2022,
     # 2024 ### not yet available
 ]
 
@@ -91,7 +91,7 @@ if is_read_team_data:
     for i in game_log_years:
         logger.info(f'Reading {i} Team Data')
         # Define the path for the csv file
-        csv_file = f'../inputs/team_data/{i}/{i}_team_index_data.csv'
+        csv_file = f'../../inputs/team_data/{i}/{i}_team_index_data.csv'
 
         table = (extract_team_data(i))
         # Write the Table to a csv

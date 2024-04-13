@@ -1,5 +1,5 @@
 import pandas as pd
-from utils import extract_team_acronym_and_division
+from baseball_data_project.scripts.utils import extract_team_acronym_and_division
 
 
 game_log_years = [

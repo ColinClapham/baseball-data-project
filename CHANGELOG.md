@@ -11,6 +11,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - write to s3 functionality
 
+### Fixed
+
+- Indexing in new script file format
 
 ## [0.1.2] - 2024-04-09
 

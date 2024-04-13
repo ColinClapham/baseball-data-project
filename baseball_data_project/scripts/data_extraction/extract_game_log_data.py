@@ -2,7 +2,7 @@ import requests
 import zipfile
 import io
 import pandas as pd
-from utils import delete_file, extract_team_acronym_and_division
+from baseball_data_project.scripts.utils import delete_file, extract_team_acronym_and_division
 from loguru import logger
 
 '''
@@ -28,6 +28,7 @@ The are broken up into subgroups:
     - radj: 'runner adjustment', field begins in 2020, indicates a runner starting on 2nd in extra innings; 
         - only 8 records are tagged, will ignore
 '''
+
 
 def clean_game_log_file(raw_file_name, n=10):
     df = pd.read_csv(
@@ -109,7 +110,7 @@ def download_and_unzip_csv(url, raw_file_name, n=10):
 
 def extract_game_log_data(year, team_acronym, division, ssl_block=True):
     if ssl_block:
-        game_log_data_raw_file_path = f'../inputs/raw_files/{year}eve/{year}{team_acronym}.EV{division}'
+        game_log_data_raw_file_path = f'../../inputs/raw_files/{year}eve/{year}{team_acronym}.EV{division}'
         team_data = clean_game_log_file(game_log_data_raw_file_path)
     else:
         # URL of raw data
@@ -123,7 +124,7 @@ def extract_game_log_data(year, team_acronym, division, ssl_block=True):
 
 
 game_log_years = [
-    2023,
+    2022,
     # 2024 ### not yet available
 ]
 
@@ -136,7 +137,7 @@ if is_read_team_data:
 
             logger.info(f'Reading {j[0]}{i} Roster Data')
             # Define the path for the csv file
-            csv_file = f'../inputs/game_log_data/{i}/{j[0]}{i}_game_log_data.csv'
+            csv_file = f'../../inputs/game_log_data/{i}/{j[0]}{i}_game_log_data.csv'
 
             table = (extract_game_log_data(i, j[0], j[1]))
             # Write the Table to a csv
