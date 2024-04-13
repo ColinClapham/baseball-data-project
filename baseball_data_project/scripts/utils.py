@@ -45,5 +45,3 @@ def extract_team_acronym_and_division(year):
         logger.info(f'{year} Team Data does not exist - run extract_team_data.py')
 
     return acronyms
-
-ensure_directory_exists('/Users/colinclapham/github/baseball-data-project/baseball_data_project/inputs/team_data/2020/2020_team_index_data.csv')
