@@ -1,5 +1,5 @@
 import pandas as pd
-from baseball_data_project.scripts.utils import extract_team_acronym_and_division
+from baseball_data_project.scripts.utils import extract_team_acronym_and_division, ensure_directory_exists
 from loguru import logger
 from pathlib import Path
 import pyarrow as pa
@@ -395,6 +395,8 @@ def run_clean_game_log_data(game_log_years=[2023], is_read_team_data=True, is_cr
                 if is_create_game_info:
                     csv_file = f'/Users/colinclapham/github/baseball-data-project/baseball_data_project/deliverables/game_info/{i}/{j[0]}{i}_game_info_data.csv'
 
+                    ensure_directory_exists(csv_file)
+
                     table = create_game_info(extract_game_log_data(i, j[0]))
                     # Write the Table to a csv
                     table.to_csv(csv_file)
@@ -404,6 +406,8 @@ def run_clean_game_log_data(game_log_years=[2023], is_read_team_data=True, is_cr
 
                 if is_create_lineup_info:
                     csv_file = f'/Users/colinclapham/github/baseball-data-project/baseball_data_project/deliverables/lineup_info/{i}/{j[0]}{i}_lineup_info_data.csv'
+
+                    ensure_directory_exists(csv_file)
 
                     table = create_lineup_info(extract_game_log_data(i, j[0]))
 
@@ -416,6 +420,8 @@ def run_clean_game_log_data(game_log_years=[2023], is_read_team_data=True, is_cr
                 if is_create_pitch_info:
                     # Define the path for the Parquet file
                     parquet_file = f'/Users/colinclapham/github/baseball-data-project/baseball_data_project/deliverables/pitch_info/{i}/{j[0]}{i}_pitch_info_data.parquet'
+
+                    ensure_directory_exists(parquet_file)
                     # Convert the pandas DataFrame to a pyarrow Table
                     table = pa.Table.from_pandas(create_pitch_info(extract_game_log_data(i, j[0])))
 

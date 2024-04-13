@@ -2,7 +2,7 @@ import requests
 import zipfile
 import io
 import pandas as pd
-from baseball_data_project.scripts.utils import delete_file, extract_team_acronym_and_division
+from baseball_data_project.scripts.utils import delete_file, extract_team_acronym_and_division, ensure_directory_exists
 from loguru import logger
 
 '''
@@ -81,6 +81,8 @@ def run_extract_roster_data(roster_years=[2023], is_read_team_data=True):
                 logger.info(f'Reading {j[0]}{i} Roster Data')
                 # Define the path for the csv file
                 csv_file = f'/Users/colinclapham/github/baseball-data-project/baseball_data_project/inputs/roster_data/{i}/{j[0]}{i}_roster_index_data.csv'
+
+                ensure_directory_exists(csv_file)
 
                 table = (extract_roster_data(i, j[0]))
                 # Write the Table to a csv
