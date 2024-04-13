@@ -4,7 +4,15 @@ from loguru import logger
 from pathlib import Path
 import pyarrow as pa
 import pyarrow.parquet as pq
+import toml
 pd.options.mode.chained_assignment = None  # default='warn'
+
+
+# Specify the path to your config file
+config_file_path = '/Users/colinclapham/github/baseball-data-project/config.toml'
+
+# Load the TOML file
+config_data = toml.load(config_file_path)
 
 '''
 The Purpose of this script is to clean GAME LOG DATA
@@ -374,10 +382,10 @@ def create_pitch_info(df):
 
 
 def extract_game_log_data(year, team_acronym):
-    my_file = Path(f'/Users/colinclapham/github/baseball-data-project/baseball_data_project/inputs/game_log_data/{year}/{team_acronym}{year}_game_log_data.csv')
+    my_file = Path(f'{config_data["input_file_path"]}/game_log_data/{year}/{team_acronym}{year}_game_log_data.csv')
     if my_file.is_file():
         logger.info(f'{year} Team Data Exists!')
-        game_log_raw_data = pd.read_csv(f'/Users/colinclapham/github/baseball-data-project/baseball_data_project/inputs/game_log_data/{year}/{team_acronym}{year}_game_log_data.csv')
+        game_log_raw_data = pd.read_csv(f'{config_data["input_file_path"]}/game_log_data/{year}/{team_acronym}{year}_game_log_data.csv')
     else:
         logger.info(f'{team_acronym}{year} Data does not exist - run extract_game_log_data.py')
 
@@ -393,7 +401,7 @@ def run_clean_game_log_data(game_log_years=[2023], is_read_team_data=True, is_cr
                 logger.info(f'Cleaning {j[0]}{i} Game Log Data')
 
                 if is_create_game_info:
-                    csv_file = f'/Users/colinclapham/github/baseball-data-project/baseball_data_project/deliverables/game_info/{i}/{j[0]}{i}_game_info_data.csv'
+                    csv_file = f'{config_data["output_file_path"]}/game_info/{i}/{j[0]}{i}_game_info_data.csv'
 
                     ensure_directory_exists(csv_file)
 
@@ -405,7 +413,7 @@ def run_clean_game_log_data(game_log_years=[2023], is_read_team_data=True, is_cr
                     logger.info('Do Not Create Game Info')
 
                 if is_create_lineup_info:
-                    csv_file = f'/Users/colinclapham/github/baseball-data-project/baseball_data_project/deliverables/lineup_info/{i}/{j[0]}{i}_lineup_info_data.csv'
+                    csv_file = f'{config_data["output_file_path"]}/lineup_info/{i}/{j[0]}{i}_lineup_info_data.csv'
 
                     ensure_directory_exists(csv_file)
 
@@ -419,7 +427,7 @@ def run_clean_game_log_data(game_log_years=[2023], is_read_team_data=True, is_cr
 
                 if is_create_pitch_info:
                     # Define the path for the Parquet file
-                    parquet_file = f'/Users/colinclapham/github/baseball-data-project/baseball_data_project/deliverables/pitch_info/{i}/{j[0]}{i}_pitch_info_data.parquet'
+                    parquet_file = f'{config_data["output_file_path"]}/pitch_info/{i}/{j[0]}{i}_pitch_info_data.parquet'
 
                     ensure_directory_exists(parquet_file)
                     # Convert the pandas DataFrame to a pyarrow Table

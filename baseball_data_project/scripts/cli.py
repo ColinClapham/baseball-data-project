@@ -4,6 +4,13 @@ from baseball_data_project.scripts.extract_team_data import run_extract_team_dat
 from baseball_data_project.scripts.extract_roster_data import run_extract_roster_data
 from baseball_data_project.scripts.extract_game_log_data import run_extract_game_log_data
 from baseball_data_project.scripts.clean_game_log_data import run_clean_game_log_data
+import toml
+
+# Specify the path to your config file
+config_file_path = '/Users/colinclapham/github/baseball-data-project/config.toml'
+
+# Load the TOML file
+config_data = toml.load(config_file_path)
 
 
 # Define the command line argument parser
@@ -11,7 +18,7 @@ def parse_arguments():
     parser = argparse.ArgumentParser(description="Tool to Extract Roster, Team, and Game Log data - structure pitch data")
 
     # Define command line arguments
-    parser.add_argument('argument1', type=int, default=[2023], help='Desired Year of Data to Extract')
+    parser.add_argument('argument1', type=int, default=config_data["data_years"], help='Desired Year of Data to Extract')
     parser.add_argument('--option1', type=int, default=True, help='Set to false to skip team data extract')
     parser.add_argument('--option2', type=int, default=True, help='Set to false to skip create game info')
     parser.add_argument('--option3', type=int, default=True, help='Set to false to skip create lineup info')

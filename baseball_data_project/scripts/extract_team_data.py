@@ -2,8 +2,15 @@ import requests
 import zipfile
 import io
 import pandas as pd
-from baseball_data_project.scripts.utils import delete_file, ensure_directory_exists
 from loguru import logger
+import toml
+from baseball_data_project.scripts.utils import delete_file, ensure_directory_exists
+
+# Specify the path to your config file
+config_file_path = '/Users/colinclapham/github/baseball-data-project/config.toml'
+
+# Load the TOML file
+config_data = toml.load(config_file_path)
 
 
 '''
@@ -67,7 +74,7 @@ def extract_team_data(year, ssl_block=True):
     if ssl_block:
         # Get absolute path to the file
         # team_data_raw_file_path = os.path.abspath(f'../TEAM{year}')
-        team_data_raw_file_path = f'/Users/colinclapham/github/baseball-data-project/baseball_data_project/inputs/raw_files/{year}eve/TEAM{year}'
+        team_data_raw_file_path = f'{config_data["input_file_path"]}/raw_files/{year}eve/TEAM{year}'
         team_data = clean_team_file(team_data_raw_file_path)
     else:
         # URL of raw data
@@ -85,7 +92,7 @@ def run_extract_team_data(game_log_years=[2023], is_read_team_data=True):
         for i in game_log_years:
             logger.info(f'Reading {i} Team Data')
             # Define the path for the csv file
-            csv_file = f'/Users/colinclapham/github/baseball-data-project/baseball_data_project/inputs/team_data/{i}/{i}_team_index_data.csv'
+            csv_file = f'{config_data["input_file_path"]}/team_data/{i}/{i}_team_index_data.csv'
 
             ensure_directory_exists(csv_file)
 

@@ -4,6 +4,15 @@ import io
 import pandas as pd
 from baseball_data_project.scripts.utils import delete_file, extract_team_acronym_and_division, ensure_directory_exists
 from loguru import logger
+import toml
+
+
+# Specify the path to your config file
+config_file_path = '/Users/colinclapham/github/baseball-data-project/config.toml'
+
+# Load the TOML file
+config_data = toml.load(config_file_path)
+
 
 '''
 The Purpose of this script is to extract data relating to how PLAYERS are referenced in game log data
@@ -60,7 +69,7 @@ def download_and_unzip_csv(url, raw_file_name):
 
 def extract_roster_data(year, team_acronym, ssl_block=True):
     if ssl_block:
-        roster_data_raw_file_path = f'/Users/colinclapham/github/baseball-data-project/baseball_data_project/inputs/raw_files/{year}eve/{team_acronym}{year}.ROS'
+        roster_data_raw_file_path = f'{config_data["input_file_path"]}/raw_files/{year}eve/{team_acronym}{year}.ROS'
         team_data = clean_roster_file(roster_data_raw_file_path)
     else:
         # URL of raw data
@@ -80,7 +89,7 @@ def run_extract_roster_data(roster_years=[2023], is_read_team_data=True):
             for j in team_acronyms:
                 logger.info(f'Reading {j[0]}{i} Roster Data')
                 # Define the path for the csv file
-                csv_file = f'/Users/colinclapham/github/baseball-data-project/baseball_data_project/inputs/roster_data/{i}/{j[0]}{i}_roster_index_data.csv'
+                csv_file = f'{config_data["input_file_path"]}/roster_data/{i}/{j[0]}{i}_roster_index_data.csv'
 
                 ensure_directory_exists(csv_file)
 
