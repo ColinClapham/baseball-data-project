@@ -4,9 +4,7 @@ import io
 import pandas as pd
 from baseball_data_project.scripts.utils import delete_file
 from loguru import logger
-import ssl
 
-ssl_context = ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)  # Use PROTOCOL_TLS_CLIENT for client connections
 
 '''
 The Purpose of this script is to extract data relating to how TEAMS are referenced in game log data
@@ -67,7 +65,9 @@ def download_and_unzip_csv(url, raw_file_name):
 def extract_team_data(year, ssl_block=True):
     # Starting March 26, 2024 - retrosheet updated their SSL Certification making it impossible to connect to their site
     if ssl_block:
-        team_data_raw_file_path = f'../../inputs/raw_files/{year}eve/TEAM{year}'
+        # Get absolute path to the file
+        # team_data_raw_file_path = os.path.abspath(f'../TEAM{year}')
+        team_data_raw_file_path = f'/Users/colinclapham/github/baseball-data-project/baseball_data_project/inputs/raw_files/{year}eve/TEAM{year}'
         team_data = clean_team_file(team_data_raw_file_path)
     else:
         # URL of raw data
@@ -80,23 +80,29 @@ def extract_team_data(year, ssl_block=True):
     return team_data
 
 
-game_log_years = [
-    2022,
-    # 2024 ### not yet available
-]
+def run_extract_team_data(game_log_years=[2023], is_read_team_data=True):
+    if is_read_team_data:
+        for i in game_log_years:
+            logger.info(f'Reading {i} Team Data')
+            # Define the path for the csv file
+            csv_file = f'/Users/colinclapham/github/baseball-data-project/baseball_data_project/inputs/team_data/{i}/{i}_team_index_data.csv'
 
-is_read_team_data = True
+            table = (extract_team_data(i))
+            # Write the Table to a csv
+            table.to_csv(csv_file)
+            logger.info(f"Data has been written to '{csv_file}'")
+    else:
+        logger.info('Skip Team Data')
+        pass
 
-if is_read_team_data:
-    for i in game_log_years:
-        logger.info(f'Reading {i} Team Data')
-        # Define the path for the csv file
-        csv_file = f'../../inputs/team_data/{i}/{i}_team_index_data.csv'
 
-        table = (extract_team_data(i))
-        # Write the Table to a csv
-        table.to_csv(csv_file)
-        logger.info(f"Data has been written to '{csv_file}'")
-else:
-    logger.info('Skip Team Data')
-    pass
+if __name__ == "__main__":
+
+    # game_log_years = [
+    #     2023,
+    #     # 2024 ### not yet available
+    # ]
+    #
+    # is_read_team_data = True
+
+    run_extract_team_data()
