@@ -69,12 +69,16 @@ def download_and_unzip_csv(url, raw_file_name):
         return df
 
 
-def extract_team_data(year, ssl_block=True):
+def extract_team_data(year, ssl_block=True, env='prod'):
     # Starting March 26, 2024 - retrosheet updated their SSL Certification making it impossible to connect to their site
     if ssl_block:
         # Get absolute path to the file
         # team_data_raw_file_path = os.path.abspath(f'../TEAM{year}')
-        team_data_raw_file_path = f'{config_data["input_file_path"]}/raw_files/{year}eve/TEAM{year}'
+        if env == 'prod':
+            team_data_raw_file_path = f'{config_data["input_file_path"]}/raw_files/{year}eve/TEAM{year}'
+        elif env == 'dev':
+            team_data_raw_file_path = f'{config_data["dev_input_file_path"]}/raw_files/{year}eve/TEAM{year}'
+
         team_data = clean_team_file(team_data_raw_file_path)
     else:
         # URL of raw data
@@ -87,12 +91,15 @@ def extract_team_data(year, ssl_block=True):
     return team_data
 
 
-def run_extract_team_data(game_log_years=[2023], is_read_team_data=True):
+def run_extract_team_data(game_log_years=[2023], is_read_team_data=True, env='prod'):
     if is_read_team_data:
         for i in game_log_years:
             logger.info(f'Reading {i} Team Data')
             # Define the path for the csv file
-            csv_file = f'{config_data["input_file_path"]}/team_data/{i}/{i}_team_index_data.csv'
+            if env == 'prod':
+                csv_file = f'{config_data["input_file_path"]}/team_data/{i}/{i}_team_index_data.csv'
+            elif env == 'dev':
+                csv_file = f'{config_data["dev_input_file_path"]}/team_data/{i}/{i}_team_index_data.csv'
 
             ensure_directory_exists(csv_file)
 

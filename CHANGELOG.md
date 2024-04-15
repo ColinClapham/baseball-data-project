@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - write to S3 functionality [WIP]
 - config.toml
+- write to dev or prod
 
 
 ## [0.2.0] - 2024-04-09

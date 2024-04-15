@@ -15,14 +15,19 @@ config_data = toml.load(config_file_path)
 
 # Define the command line argument parser
 def parse_arguments():
-    parser = argparse.ArgumentParser(description="Tool to Extract Roster, Team, and Game Log data - structure pitch data")
+    parser = argparse.ArgumentParser(
+        description="Tool to Extract Roster, Team, and Game Log data - structure pitch data"
+    )
 
     # Define command line arguments
-    parser.add_argument('argument1', type=int, default=config_data["data_years"], help='Desired Year of Data to Extract')
+    parser.add_argument('argument1', type=int, default=config_data["data_years"],
+                        help='Desired Year of Data to Extract')
     parser.add_argument('--option1', type=int, default=True, help='Set to false to skip team data extract')
     parser.add_argument('--option2', type=int, default=True, help='Set to false to skip create game info')
     parser.add_argument('--option3', type=int, default=True, help='Set to false to skip create lineup info')
     parser.add_argument('--option4', type=int, default=True, help='Set to false to skip create pitch info')
+    parser.add_argument('--option5', type=str, default=config_data["env"],
+                        help='read/write to prod or dev environment')
 
     return parser.parse_args()
 
@@ -37,6 +42,7 @@ def main():
     option_value_2 = args.option2
     option_value_3 = args.option3
     option_value_4 = args.option4
+    option_value_5 = args.option5
 
     # Implement your CLI logic based on the arguments
     print(f"Argument 1: {arg_value}")
@@ -44,12 +50,13 @@ def main():
     print(f"Option 1: {option_value_2}")
     print(f"Option 1: {option_value_3}")
     print(f"Option 1: {option_value_4}")
+    print(f"Option 1: {option_value_5}")
 
     # Add more functionality based on the arguments and options
-    run_extract_team_data([arg_value], option_value_1)
-    run_extract_roster_data([arg_value], option_value_1)
-    run_extract_game_log_data([arg_value], option_value_1)
-    run_clean_game_log_data([arg_value], option_value_1, option_value_2, option_value_3, option_value_4)
+    run_extract_team_data([arg_value], option_value_1, option_value_5)
+    run_extract_roster_data([arg_value], option_value_1, option_value_5)
+    run_extract_game_log_data([arg_value], option_value_1, option_value_5)
+    run_clean_game_log_data([arg_value], option_value_1, option_value_2, option_value_3, option_value_4, option_value_5)
 
 
 # Entry point of the script
