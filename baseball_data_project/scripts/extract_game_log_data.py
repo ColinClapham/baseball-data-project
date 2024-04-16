@@ -150,7 +150,7 @@ def run_extract_game_log_data(game_log_years=[2023], is_read_team_data=True, env
 
                 table = (extract_game_log_data(i, j[0], j[1]))
                 # Write the Table to a csv
-                table.to_csv(csv_file)
+                table.to_csv(csv_file, index=False)
                 logger.info(f"Data has been written to '{csv_file}'")
     else:
         logger.info('Skip Game Log Data')

@@ -105,7 +105,7 @@ def run_extract_team_data(game_log_years=[2023], is_read_team_data=True, env='pr
 
             table = (extract_team_data(i))
             # Write the Table to a csv
-            table.to_csv(csv_file)
+            table.to_csv(csv_file, index=False)
             logger.info(f"Data has been written to '{csv_file}'")
     else:
         logger.info('Skip Team Data')
