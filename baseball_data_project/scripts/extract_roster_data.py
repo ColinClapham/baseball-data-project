@@ -4,6 +4,15 @@ import io
 import pandas as pd
 from baseball_data_project.scripts.utils import delete_file, extract_team_acronym_and_division, ensure_directory_exists
 from loguru import logger
+import toml
+
+
+# Specify the path to your config file
+config_file_path = '/Users/colinclapham/github/baseball-data-project/config.toml'
+
+# Load the TOML file
+config_data = toml.load(config_file_path)
+
 
 '''
 The Purpose of this script is to extract data relating to how PLAYERS are referenced in game log data
@@ -58,9 +67,13 @@ def download_and_unzip_csv(url, raw_file_name):
         return df
 
 
-def extract_roster_data(year, team_acronym, ssl_block=True):
+def extract_roster_data(year, team_acronym, ssl_block=True, env='prod'):
     if ssl_block:
-        roster_data_raw_file_path = f'/Users/colinclapham/github/baseball-data-project/baseball_data_project/inputs/raw_files/{year}eve/{team_acronym}{year}.ROS'
+        if env == 'prod':
+            roster_data_raw_file_path = f'{config_data["input_file_path"]}/raw_files/{year}eve/{team_acronym}{year}.ROS'
+        elif env == 'dev':
+            roster_data_raw_file_path = f'{config_data["dev_input_file_path"]}/raw_files/{year}eve/{team_acronym}{year}.ROS'
+
         team_data = clean_roster_file(roster_data_raw_file_path)
     else:
         # URL of raw data
@@ -73,20 +86,23 @@ def extract_roster_data(year, team_acronym, ssl_block=True):
     return team_data
 
 
-def run_extract_roster_data(roster_years=[2023], is_read_team_data=True):
+def run_extract_roster_data(roster_years=[2023], is_read_team_data=True, env='prod'):
     if is_read_team_data:
         for i in roster_years:
             team_acronyms = extract_team_acronym_and_division(i)
             for j in team_acronyms:
                 logger.info(f'Reading {j[0]}{i} Roster Data')
                 # Define the path for the csv file
-                csv_file = f'/Users/colinclapham/github/baseball-data-project/baseball_data_project/inputs/roster_data/{i}/{j[0]}{i}_roster_index_data.csv'
+                if env == 'prod':
+                    csv_file = f'{config_data["input_file_path"]}/roster_data/{i}/{j[0]}{i}_roster_index_data.csv'
+                elif env == 'dev':
+                    csv_file = f'{config_data["dev_input_file_path"]}/roster_data/{i}/{j[0]}{i}_roster_index_data.csv'
 
                 ensure_directory_exists(csv_file)
 
                 table = (extract_roster_data(i, j[0]))
                 # Write the Table to a csv
-                table.to_csv(csv_file)
+                table.to_csv(csv_file, index=False)
                 logger.info(f"Data has been written to '{csv_file}'")
     else:
         logger.info('Skip Roster Data')

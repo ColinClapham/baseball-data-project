@@ -1,0 +1,14 @@
+input_file_path = '/Users/colinclapham/github/baseball-data-project/baseball_data_project/inputs'
+
+output_file_path = '/Users/colinclapham/github/baseball-data-project/baseball_data_project/deliverables'
+
+dev_input_file_path = '/Users/colinclapham/github/baseball-data-project/baseball_data_project/dev_inputs'
+
+dev_output_file_path = '/Users/colinclapham/github/baseball-data-project/baseball_data_project/dev_deliverables'
+
+
+data_years = [
+    2023
+]
+
+env = 'prod'
