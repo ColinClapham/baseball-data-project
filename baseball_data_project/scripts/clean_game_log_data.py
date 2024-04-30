@@ -6,7 +6,7 @@ import pyarrow as pa
 import pyarrow.parquet as pq
 import toml
 pd.options.mode.chained_assignment = None  # default='warn'
-
+import re
 
 # Specify the path to your config file
 config_file_path = '/Users/colinclapham/github/baseball-data-project/config.toml'
@@ -132,6 +132,80 @@ def pitch_mapping(value):
         return value
 
 
+def check_and_return_letter(input_string):
+    # Define the regular expression pattern
+    pattern = r'^(S|D|T|DGR|H|HR)(\d+)$|^(\d+)$'  # Matches 's', 'd', or 't' followed by digits OR just digits
+
+    # Use re.match to check if the input_string matches the pattern
+    match = re.match(pattern, input_string)
+
+    if match:
+        # If the match starts with 's', 'd', or 't'
+        if match.group(1):
+            return match.group(1)  # Return the letter ('s', 'd', or 't')
+        else:
+            return None  # Return None if the match is only digits
+    else:
+        return None  # Return None if there is no match
+
+
+def hit_mapping(value, event='X'):
+    # 11 different scenarios that a pitch can lead to
+    if event != 'X':
+        return None
+    elif check_and_return_letter(value) == 'S':
+        return 'Single'
+    elif check_and_return_letter(value) == 'D':
+        return 'Double'
+    elif check_and_return_letter(value) == 'T':
+        return 'Triple'
+    elif check_and_return_letter(value) == 'DGR':
+        return 'Double'
+    elif check_and_return_letter(value) == 'H':
+        return 'Home Run'
+    elif check_and_return_letter(value) == 'HR':
+        return 'Home Run'
+    else:
+        return value
+
+
+def map_hit_to_location(larger_string, event='X'):
+    if event != 'X':
+        return None
+    else:
+        # Define group mappings
+        group_mapping = {
+            'Deep Left': ['7LDF', '7LD', '78D', '78XD', '7LF', '7L', '7', '78'],
+            'Shallow Left': ['7LSF', '7LS', '7S', '78S', '5DF', '5D', '56D', '6D'],
+            'Deep Center': ['8XD', '8D', '8'],
+            'Shallow Center': ['8S', '6MD', '4MD'],
+            'Deep Right': ['89XD', '89D', '89', '9D', '9LD', '9LDF', '9', '9L', '9LF'],
+            'Shallow Right': ['89S', '9S', '9LS', '9LSF', '4D', '34D', '3D', '3DF'],
+            'Infield Right': ['4M', '4', '34', '3', '3F', '4MS', '4S', '34S', '3S', '13', '23', '23F'],
+            'Infield Left': ['5F', '5', '56', '6', '6M', '5S', '56S', '6S', '6MS', '15', '2S', '2SF'],
+        }
+
+        # Initialize an empty dictionary to store mapped groups
+        mapped_groups = {}
+
+        # Extract all substrings from the larger string
+        substrings = set()
+        for word in larger_string.split():
+            # Remove punctuation characters from the word
+            cleaned_word = ''.join(char for char in word if char.isalnum())
+            if cleaned_word:  # Check if the cleaned word is not empty
+                substrings.add(cleaned_word.lower())  # Convert to lowercase and add to set
+
+        # Map each substring to its corresponding group
+        for substring in substrings:
+            for group, items in group_mapping.items():
+                if substring in items:
+                    mapped_groups[substring] = group
+                    break  # Stop searching once the substring is found in a group
+
+    return mapped_groups
+
+
 def create_game_info(df):
     # High level win/loss information
     d = []
@@ -227,7 +301,6 @@ def create_lineup_info(df):
 def create_pitch_info(df):
     # Pitch level data
     # metadata_6 contains play level data, some of which we want to filter out (for now)
-    # TODO: extract events from metadata_6
     # These events cause a duplication of rows
     events_to_filter_out = ['NP', 'WP', 'SB', 'PB', 'PO', 'BK', 'CS', 'OA', 'DI', 'FLE']
     pattern = '|'.join(events_to_filter_out)
@@ -332,6 +405,7 @@ def create_pitch_info(df):
                 'metadata_1',
                 'metadata_2',
                 'metadata_3',
+                'metadata_6',
                 'game_number',
                 'Cleaned Pitch Sequence'
             ]].explode('Cleaned Pitch Sequence').reset_index()
@@ -367,6 +441,8 @@ def create_pitch_info(df):
                         'Batter Team': at_bat_mapper(row['metadata_2']),
                         'Inning': row['metadata_1'],
                         'Pitch Event': pitch_mapping(row['Cleaned Pitch Sequence']),
+                        'Batter Event': hit_mapping(row['metadata_6'], event=pitch_mapping(row['Cleaned Pitch Sequence'])),
+                        'Hit Location': map_hit_to_location(row['metadata_6'], event=pitch_mapping(row['Cleaned Pitch Sequence'])),
                         'At-Bat Pitch Count': at_bat_pitch_count,
                         'Total Pitcher Pitch Count': total_pitch_count_mapper(row['metadata_2']),
                         'is_whiff': row['Cleaned Pitch Sequence'] == 'S',
@@ -468,14 +544,14 @@ def run_clean_game_log_data(
 
 if __name__ == "__main__":
 
-    # game_log_years = [
-    #     2022,
-    #     # 2024 ### not yet available
-    # ]
-    #
-    # is_read_team_data = True
-    # is_create_game_info = True
-    # is_create_lineup_info = True
-    # is_create_pitch_info = True
+    game_log_years = [
+        2023,
+        # 2024 ### not yet available
+    ]
+
+    is_read_team_data = True
+    is_create_game_info = False
+    is_create_lineup_info = False
+    is_create_pitch_info = True
 
     run_clean_game_log_data()
